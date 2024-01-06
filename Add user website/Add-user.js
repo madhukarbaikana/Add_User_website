@@ -1,88 +1,88 @@
-let addUserFormEl = document.getElementById("addUserForm");
-let nameEl = document.getElementById("name");
-let nameErrMsgEl = document.getElementById("nameErrMsg");
-
-let emailEl = document.getElementById("email");
-let emailErrMsgEl = document.getElementById("emailErrMsg");
-
-let statusEl = document.getElementById("status");
-
-let genderMaleEl = document.getElementById("genderMale");
-let genderFemaleEl = document.getElementById("genderFemale");
-
-let data = {
+let addUserForm = document.getElementById("addUserForm");
+let nameEle = document.getElementById("name");
+let nameErrMsg = document.getElementById("nameErrMsg");
+let emailErrMsg = document.getElementById("emailErrMsg");
+let emailEle = document.getElementById("email");
+let statusEle = document.getElementById("status");
+let genderMaleEle = document.getElementById("genderMale");
+let genderFemaleEle = document.getElementById("genderFemale");
+let formData = {
     name: "",
     email: "",
-    workingStatus: "Active",
+    status: "Active",
     gender: "Male"
-}
-let nameValidation = function() {
-    if (nameEl.value === "") {
-        nameErrMsgEl.textContent = "Required*";
+};
 
+//change values and include validation  for name and email 
+nameEle.addEventListener("change", function(event) {
+    if (event.target.value === "") {
+        nameErrMsg.textContent = "Required Name *";
     } else {
-        nameErrMsgEl.textContent = "";
+        nameErrMsg.textContent = "";
     }
-    data.name = nameEl.value;
-}
-let emailValidation = function() {
-    if (emailEl.value === "") {
-        emailErrMsgEl.textContent = "Required*";
+    formData.name = event.target.value;
+});
+
+emailEle.addEventListener("change", function(event) {
+    if (event.target.value === "") {
+        emailErrMsg.textContent = "Required Email *";
     } else {
-        emailErrMsgEl.textContent = "";
+        emailErrMsg.textContent = "";
     }
-    data.email = emailEl.value;
+    formData.email = event.target.value;
+});
+//lets change the values in formData
+statusEle.addEventListener("change", function(event) {
+    formData.statusEle = event.target.value;
+});
+genderMaleEle.addEventListener("change", function(event) {
+    formData.gender = event.target.value;
+});
+genderFemaleEle.addEventListener("change", function(event) {
+    formData.gender = event.target.value;
+});
+//validate form 
+function validateForm(formData) {
+    let {
+        name,
+        email
+    } = formData;
+    if (name === "") {
+        nameErrMsg.textContent = "Required Name *";
+    }
+    if (email === "") {
+        emailErrMsg.textContent = "Required Email *";
+    }
 }
 
-
-nameEl.addEventListener("change", nameValidation);
-emailEl.addEventListener("change", emailValidation);
-
-statusEl.addEventListener("change", function(event) {
-    data.workingStatus = event.target.value;
-})
-genderMaleEl.addEventListener("change", function(event) {
-    data.gender = event.target.value;
-})
-genderFemaleEl.addEventListener("change", function(event) {
-    data.gender = event.target.value;
-})
-
-function validateData() {
-    if (data.name === "") {
-        nameErrMsgEl.textContent = "Required*";
-    }
-    if (data.email === "") {
-        emailErrMsgEl.textContent = "Required*"
-    }
-}
-
-function requestData() {
+function submitFormData(formData) {
+    let url = "https://gorest.co.in/public-api/users";
     let options = {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            Authorization: "Bearer b575a06aeac037ece3a4f2000dbf8c28b5ca69b35db227905e71a32be0d2d719"
+            Authorization: "Bearer 71f74e4cf06839fd4fa606ea0ab8b50f660900d1c21acc6e30ce8d7d6f27348c"
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(formData)
     };
-    fetch("https://gorest.co.in/public-api/users", options)
+    fetch(url, options)
         .then(function(response) {
             return response.json();
-        }).then(function(jsonData) {
+        })
+        .then(function(jsonData) {
+            console.log(formData);
+            console.log(jsonData);
             if (jsonData.code === 422) {
-                if (jsonData.data[0].message === "has alredy been taken") {
-                    emailErrMsgEl.textContent = "Email already been taken";
+                if (jsonData.data[0].message === "has already been taken") {
+                    emailErrMsg.textContent = "Email has already been taken";
                 }
             }
-
         })
 }
-
-
-addUserFormEl.addEventListener("submit", function(event) {
+//to prevent the default action 
+addUserForm.addEventListener('submit', function(event) {
     event.preventDefault();
-    validateData();
-    requestData();
-})
+    validateForm(formData);
+    submitFormData(formData);
+});
